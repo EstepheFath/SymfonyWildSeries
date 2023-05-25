@@ -9,8 +9,10 @@ use Doctrine\Persistence\ObjectManager;
 class AppFixtures extends Fixture
 {
     public const CATEGORIES = [
-
+        'Animation',
         'Horreur',
+        'Action',
+        'Romantique',
 
     ];
     public function load(ObjectManager $manager)
