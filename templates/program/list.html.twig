@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Série #{{ program.id }}{% endblock %}
+{% block title %}Série {{ program.name }}{% endblock %}
 
 {% block body %}
     <div class="media">
@@ -9,6 +9,7 @@
             <h1 class="mt-0">{{ program.name }}</h1>
             <p>{{ program.synopsis }}</p>
             <p>Catégorie : {{ program.category.name }}</p>
+            <p>Saisons: {{ program.season }}</p>
         </div>
     </div>
 
