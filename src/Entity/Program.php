@@ -19,21 +19,45 @@ class Program
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(length: 255)]
     private ?string $synopsis = null;
 
     #[ORM\Column(length: 255)]
     private ?string $poster = null;
 
-    #[ORM\ManyToOne(inversedBy: 'programs')]
-    private ?Category $category = null;
-
-    #[ORM\OneToMany(mappedBy: 'program', targetEntity: Season::class)]
-    private Collection $seasons;
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Program::class)]
+    private $programs;
 
     public function __construct()
     {
-        $this->seasons = new ArrayCollection();
+        $this->programs = new ArrayCollection();
+    }
+
+    public function getPrograms(): Collection
+    {
+        return $this->programs;
+    }
+
+    public function addProgram(Program $program): self
+    {
+        if (!$this->programs->contains($program)) {
+            $this->programs->add($program);
+            $program->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProgram(Program $program): self
+    {
+        if ($this->programs->removeElement($program)) {
+            // set the owning side to null (unless already changed)
+            if ($program->getCategory() === $this) {
+                $program->setCategory(null);
+            }
+        }
+
+        return $this;
     }
 
     public function getId(): ?int
@@ -73,48 +97,6 @@ class Program
     public function setPoster(string $poster): self
     {
         $this->poster = $poster;
-
-        return $this;
-    }
-
-    public function getCategory(): ?Category
-    {
-        return $this->category;
-    }
-
-    public function setCategory(?Category $category): self
-    {
-        $this->category = $category;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Season>
-     */
-    public function getSeasons(): Collection
-    {
-        return $this->seasons;
-    }
-
-    public function addSeasons(Season $seasons): self
-    {
-        if (!$this->seasons->contains($seasons)) {
-            $this->seasons->add($seasons);
-            $seasons->setProgram($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSeasons(Season $seasons): self
-    {
-        if ($this->seasons->removeElement($seasons)) {
-            // set the owning side to null (unless already changed)
-            if ($seasons->getProgram() === $this) {
-                $seasons->setProgram(null);
-            }
-        }
 
         return $this;
     }
