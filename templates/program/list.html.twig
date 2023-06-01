@@ -9,15 +9,15 @@
             <h1 class="mt-0">{{ program.name }}</h1>
             <p>{{ program.synopsis }}</p>
             <p>Catégorie : {{ program.category.name }}</p>
-            {#  <p>Saisons: {{ program.season }}</p>#}
+              {#<p>Saisons: {{ program.season }}</p>#}
                 {%for season in program.seasons %}
                     {{ loop.index }}
-                    {#  <a href="{{ path('') }}">
+                     {#  <a href="{{ path('index.html.twig') }}">
                         Retour à la liste des programmes
                     </a>#}
 
                 {% endfor %}
-            {#  <a href="{{ path('season_season') }}">
+              {#  <a href="{{ path('season_season') }}">
                 Retour à la liste des programmes
             </a>#}
 
@@ -27,4 +27,13 @@
     <a href="{{ path('program_index') }}">
         Retour à la liste des programmes
     </a>
+
+    <strong>Acteurs :</strong>
+    <ul>
+        {% for actor in program.actors %}
+            <li>{{ actor.name }}</li>
+        {% else %}
+            <li>Aucun acteur pour cette série</li>
+        {% endfor %}
+    </ul>
 {% endblock %}
