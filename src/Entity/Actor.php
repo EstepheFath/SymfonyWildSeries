@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ActorRepository;
+use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -20,6 +21,9 @@ class Actor
 
     #[ORM\ManyToMany(targetEntity: Program::class, inversedBy: 'actors')]
     private Collection $programs;
+
+    #[ORM\Column(length: 255)]
+    private ?string $slug = null;
 
     public function __construct()
     {
@@ -39,6 +43,7 @@ class Actor
     public function setName(string $name): self
     {
         $this->name = $name;
+        $this->setSlug((new Slugify())->slugify($this->name));
 
         return $this;
     }
@@ -63,6 +68,18 @@ class Actor
     public function removeProgram(Program $program): self
     {
         $this->programs->removeElement($program);
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
 
         return $this;
     }

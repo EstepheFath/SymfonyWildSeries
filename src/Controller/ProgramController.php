@@ -6,16 +6,23 @@ namespace App\Controller;
 use App\Entity\Program;
 use App\Form\ProgramType;
 use App\Repository\ProgramRepository;
+use App\Service\ProgramDuration;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/program', name: 'program_')]
 class ProgramController extends AbstractController
 {
+
+    public function __construct(SluggerInterface $slugger)
+    {
+        $this->slugger = $slugger;
+    }
 
     #[Route('/', name: 'index')]
     public function index(ProgramRepository $programRepository): Response
@@ -28,19 +35,18 @@ class ProgramController extends AbstractController
         );
     }
 
-    #[Route('/{id<^[0-9]+$>}', name: 'list')]
-    public function show(int $id, ProgramRepository $programRepository): Response
+    #[Route('/{slug}', name: 'list')]
+    public function show(Program $program, ProgramDuration $programDuration): Response
     {
-        $program = $programRepository->findOneBy(['id' => $id]);
-        // same as $program = $programRepository->find($id);
 
         if (!$program) {
             throw $this->createNotFoundException(
-                'No program with id : ' . $id . ' found in program\'s table.'
+                'No program with id found in program\'s table.'
             );
         }
         return $this->render('program/list.html.twig', [
             'program' => $program,
+            'programDuration' => $programDuration->calculate($program)
         ]);
     }
 
@@ -61,7 +67,7 @@ class ProgramController extends AbstractController
      * Display the form or deal with it
      */
     #[Route('/form', name: 'new')]
-    public function new(Request $request, ProgramRepository $programRepository, RequestStack $requestStack) : Response
+    public function new(Request $request, ProgramRepository $programRepository, RequestStack $requestStack, SluggerInterface $slugger) : Response
     {
 
         $program = new Program();
@@ -69,6 +75,8 @@ class ProgramController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
+            $slug = $slugger->slug($program->getName());
+            $program->setSlug($slug);
             $programRepository->save($program, true);
             $this->addFlash('success', 'The new program has been created');
 
@@ -80,4 +88,5 @@ class ProgramController extends AbstractController
             'form' => $form,
         ]);
     }
+
 }

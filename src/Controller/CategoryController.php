@@ -8,10 +8,16 @@ use App\Repository\ProgramRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/category', name: 'category_')]
 class CategoryController extends AbstractController
 {
+
+    public function __construct(SluggerInterface $slugger)
+    {
+        $this->slugger = $slugger;
+    }
     #[Route('/', name: 'index')]
     public function index(CategoryRepository $categoryRepository): Response
     {

@@ -3,9 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\ProgramRepository;
+use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProgramRepository::class)]
@@ -34,6 +36,9 @@ class Program
     #[ORM\ManyToMany(targetEntity: Actor::class, mappedBy: 'programs')]
     private Collection $actors;
 
+    #[ORM\Column(length: 255)]
+    private ?string $slug = null;
+
     public function __construct()
     {
         $this->seasons = new ArrayCollection();
@@ -53,6 +58,7 @@ class Program
     public function setName(string $name): self
     {
         $this->name = $name;
+        $this->setSlug((new Slugify())->slugify($this->name));
 
         return $this;
     }
@@ -146,6 +152,18 @@ class Program
         if ($this->actors->removeElement($actor)) {
             $actor->removeProgram($this);
         }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
 
         return $this;
     }
