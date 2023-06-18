@@ -7,12 +7,27 @@ use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
-use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\ORM\Mapping as ORM;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+
+
 
 #[ORM\Entity(repositoryClass: ProgramRepository::class)]
+#[Vich\Uploadable]
 class Program
 {
+
+    // On va créer un nouvel attribut à notre entité, qui ne sera pas lié à une colonne
+    // Tu peux d’ailleurs voir que l’attribut ORM column n’est pas spécifié car
+    // On ne rajoute pas de données de type file en bdd
+    #[Vich\UploadableField(mapping: 'poster_file', fileNameProperty: 'poster')]
+    private ?File $posterFile = null;
+
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $poster;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -23,9 +38,6 @@ class Program
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $synopsis = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $poster = null;
 
     #[ORM\ManyToOne(inversedBy: 'programs')]
     private ?Category $category = null;
@@ -166,5 +178,16 @@ class Program
         $this->slug = $slug;
 
         return $this;
+    }
+
+    public function setPosterFile(File $image = null): Program
+    {
+        $this->posterFile = $image;
+        return $this;
+    }
+
+    public function getPosterFile(): ?File
+    {
+        return $this->posterFile;
     }
 }

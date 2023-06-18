@@ -6,6 +6,7 @@ use App\Entity\Season;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichFileType;
 
 class SeasonType extends AbstractType
 {
@@ -16,6 +17,10 @@ class SeasonType extends AbstractType
             ->add('year')
             ->add('description')
             ->add('program', null, ['choice_label' => 'name'])
+            ->add('posterFile', VichFileType::class, [
+                'required'      => false,
+                'allow_delete'  => true, // not mandatory, default is true
+                'download_uri' => true, ])// not mandatory, default is true
         ;
     }
 

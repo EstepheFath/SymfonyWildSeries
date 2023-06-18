@@ -22,7 +22,7 @@ class SeasonController extends AbstractController
         $seasons = $seasonRepository->findOneBy(['id'=> $id]);
 
         return $this->render(
-            'season_show.html.twig',
+            'season/season_show.html.twig',
             ['seasons' => $seasons]
         );
     }
