@@ -7,13 +7,18 @@ use App\Entity\Category;
 use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+
+
+
     public const CATEGORIES = [
         'Animation',
         'Horreur',
@@ -21,8 +26,44 @@ class AppFixtures extends Fixture
         'Romantique',
 
     ];
-    public function load(ObjectManager $manager)
+
+        private UserPasswordHasherInterface $passwordHasher;
+
+    public function __construct(UserPasswordHasherInterface $passwordHasher)
     {
+        $this->passwordHasher = $passwordHasher;
+    }
+
+
+    public function load(ObjectManager $manager): void
+    {
+        // Création d’un utilisateur de type “contributeur” (= auteur)
+        $contributor = new User();
+        $contributor->setEmail('contributor@monsite.com');
+        $contributor->setRoles(['ROLE_CONTRIBUTOR']);
+        $hashedPassword = $this->passwordHasher->hashPassword(
+            $contributor,
+            'contributorpassword'
+        );
+
+        $contributor->setPassword($hashedPassword);
+        $manager->persist($contributor);
+
+        // Création d’un utilisateur de type “administrateur”
+        $admin = new User();
+        $admin->setEmail('admin@monsite.com');
+        $admin->setRoles(['ROLE_ADMIN']);
+        $hashedPassword = $this->passwordHasher->hashPassword(
+            $admin,
+            'adminpassword'
+        );
+        $admin->setPassword($hashedPassword);
+        $manager->persist($admin);
+
+        // Sauvegarde des 2 nouveaux utilisateurs :
+        $manager->flush();
+
+
         foreach (self::CATEGORIES as $categoryName) {
             $category = new Category();
             $category->setName($categoryName);
@@ -94,6 +135,7 @@ class AppFixtures extends Fixture
             $season->setNumber($faker->numberBetween(1, 10));
             $season->setYear($faker->year());
             $season->setDescription($faker->paragraphs(3, true));
+            $season->setPoster($faker->imageUrl());
 
             $season->setProgram($this->getReference('program_' . $faker->numberBetween(0, 5)));
 
