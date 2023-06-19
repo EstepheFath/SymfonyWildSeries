@@ -13,6 +13,12 @@
         {% block javascripts %}
         {#  {{ encore_entry_script_tags('app') }}#}
         {% endblock %}
+        {% if app.user %}
+            {{ app.user.email }}
+            <a href="{{ path('app_logout') }}"> Se déconnecter</a>
+        {% else %}
+            <a href="{#  {{ path('login') }}#}"> Se connecter</a>
+        {% endif %}
         <nav class="navbar navbar-light bg-light justify-content-between">
             <a class="navbar-brand">Navbar</a>
             <form class="form-inline">
